@@ -1,0 +1,180 @@
+<workflow-app xmlns="uri:oozie:workflow:0.2" name="Program-wf">
+    <start to="OnTime"/>
+    <action name="OnTime">
+        <map-reduce>
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <prepare>
+                <delete path="${nameNode}/${outputDir}"/>
+            </prepare>
+            <configuration>
+	    	<property>
+	    	      <name>mapred.mapper.new-api</name>
+	              <value>true</value>
+           	</property>
+            	<property>
+            	     <name>mapred.reducer.new-api</name>
+            	     <value>true</value>
+           	</property>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>${queueName}</value>
+                </property>
+                <property>
+                    <name>mapred.mapper.class</name>
+                    <value>OnTime.Map</value>
+                </property>
+                <property>
+                    <name>mapred.combine.class</name>
+                    <value>OnTime.Combiner</value>
+                </property>
+                <property>
+                    <name>mapred.reducer.class</name>
+                    <value>OnTime.Reduce</value>
+                </property>
+		<property>
+		   <name>mapred.output.key.class</name>
+                   <value>org.apache.hadoop.io.Text</value>
+		</property>
+		<property>
+		    <name>mapred.output.value.class</name>
+                    <value>org.apache.hadoop.io.DoubleWritable</value>
+		</property>
+                <property>
+                    <name>mapred.map.tasks</name>
+                    <value>1</value>
+                </property>
+                <property>
+                    <name>mapred.input.dir</name>
+                    <value>/home/ec2_user/BigDataProject</value>
+                </property>
+                <property>
+                    <name>mapred.output.dir</name>
+                    <value>/${outputDir}</value>
+                </property>
+            </configuration>
+        </map-reduce>
+        <ok to="TaxiTime"/>
+        <error to="fail"/>
+    </action>
+
+    <action name="TaxiTime">
+        <map-reduce>
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <prepare>
+                <delete path="${nameNode}/${outputDir}"/>
+            </prepare>
+            <configuration>
+	    	<property>
+	    	      <name>mapred.mapper.new-api</name>
+	              <value>true</value>
+           	</property>
+            	<property>
+            	     <name>mapred.reducer.new-api</name>
+            	     <value>true</value>
+           	</property>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>${queueName}</value>
+                </property>
+                <property>
+                    <name>mapred.mapper.class</name>
+                    <value>TaxiTime.Map</value>
+                </property>
+                <property>
+                    <name>mapred.combine.class</name>
+                    <value>TaxiTime.Combiner</value>
+                </property>
+                <property>
+                    <name>mapred.reducer.class</name>
+                    <value>TaxiTime.Reduce</value>
+                </property>
+			<property>
+		   <name>mapred.output.key.class</name>
+                   <value>org.apache.hadoop.io.Text</value>
+			</property>
+			<property>
+		    <name>mapred.output.value.class</name>
+                    <value>org.apache.hadoop.io.DoubleWritable</value>
+			</property>
+                <property>
+                    <name>mapred.map.tasks</name>
+                    <value>1</value>
+                </property>
+                <property>
+                    <name>mapred.input.dir</name>
+                    <value>/home/ec2-user/BigDataProject</value>
+                </property>
+                <property>
+                    <name>mapred.output.dir</name>
+                    <value>/${outputDir}</value>
+                </property>
+            </configuration>
+        </map-reduce>
+        <ok to="CancellationReason"/>
+        <error to="fail"/>
+    </action>
+
+	<action name="CancellationReason">
+        <map-reduce>
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <prepare>
+                <delete path="${nameNode}/${outputDir}"/>
+            </prepare>
+            <configuration>
+	    	<property>
+	    	      <name>mapred.mapper.new-api</name>
+	              <value>true</value>
+           	</property>
+            	<property>
+            	     <name>mapred.reducer.new-api</name>
+            	     <value>true</value>
+           	</property>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>${queueName}</value>
+                </property>
+                <property>
+                    <name>mapred.mapper.class</name>
+                    <value>CancellationReason.Mapper</value>
+                </property
+                <property>
+                    <name>mapred.combine.class</name>
+                    <value>CancellationReason.Combiner</value>
+                </property>>
+                <property>
+                    <name>mapred.reducer.class</name>
+                    <value>CancellationReason.Reducer</value>
+                </property>
+		<property>
+		   <name>mapred.output.key.class</name>
+                   <value>org.apache.hadoop.io.Text</value>
+		</property>
+		<property>
+		    <name>mapred.output.value.class</name>
+                    <value>org.apache.hadoop.io.IntWritable</value>
+		</property>
+                <property>
+                    <name>mapred.map.tasks</name>
+                    <value>1</value>
+                </property>
+                <property>
+                    <name>mapred.input.dir</name>
+                    <value>/home/ec2_user/BigDataProject</value>
+                </property>
+                <property>
+                    <name>mapred.output.dir</name>
+                    <value>/${outputDir}</value>
+                </property>
+            </configuration>
+        </map-reduce>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+	<kill name="fail">
+        <message>Map/Reduce failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+    <end name="end"/>
+</workflow-app>
